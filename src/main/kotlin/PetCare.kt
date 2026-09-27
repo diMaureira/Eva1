@@ -97,11 +97,11 @@ class PetCare {
             )
         }
 
-        if (buscarBoxPorCodigo(paciente.codigoAtencion) != null) {
+        if (codigoYaExiste(paciente.codigoAtencion)) {
 
             return ResultadoOperacion.Error(
-                "Ya existe un paciente con el código " +
-                        paciente.codigoAtencion
+                "El código ${paciente.codigoAtencion} " +
+                        "ya fue utilizado durante este turno."
             )
         }
 
@@ -480,4 +480,96 @@ class PetCare {
 
         println("================================")
     }
+
+    //Valida que un codigo utilizado no se vuelva a usar en la misma sesion
+    fun codigoYaExiste(codigo: String): Boolean {
+
+        val estaActualmenteEnBox =
+            buscarBoxPorCodigo(codigo) != null
+
+        val estaEnHistorial =
+            historial.any {
+                it.paciente.codigoAtencion == codigo
+            }
+
+        return estaActualmenteEnBox || estaEnHistorial
+    }
+
+    //Funcion que permite dejar un box fuera de servicio (arreglos, mejoras)
+    fun ponerBoxFueraDeServicio(
+        numeroBox: Int,
+        motivo: String
+    ): ResultadoOperacion {
+
+        val box = boxes.firstOrNull {
+            it.numero == numeroBox
+        } ?: return ResultadoOperacion.Error(
+            "El box $numeroBox no existe."
+        )
+
+        return when (box.estado) {
+
+            is EstadoBox.Libre -> {
+
+                box.estado = EstadoBox.FueraDeServicio(motivo)
+
+                ResultadoOperacion.Exito(
+                    "Box $numeroBox marcado fuera de servicio."
+                )
+            }
+
+            is EstadoBox.EnAtencion -> {
+
+                ResultadoOperacion.Error(
+                    "El Box $numeroBox tiene un paciente en atención."
+                )
+            }
+
+            is EstadoBox.EnProceso -> {
+
+                ResultadoOperacion.Error(
+                    "El Box $numeroBox está procesando una operación."
+                )
+            }
+
+            is EstadoBox.FueraDeServicio -> {
+
+                ResultadoOperacion.Error(
+                    "El Box $numeroBox ya está fuera de servicio."
+                )
+            }
+        }
+    }
+
+    //Habilitar nuevamente un box fuera de servicio
+    fun habilitarBox(
+        numeroBox: Int
+    ): ResultadoOperacion {
+
+        val box = boxes.firstOrNull {
+            it.numero == numeroBox
+        } ?: return ResultadoOperacion.Error(
+            "El box $numeroBox no existe."
+        )
+
+        return when (box.estado) {
+
+            is EstadoBox.FueraDeServicio -> {
+
+                box.estado = EstadoBox.Libre
+
+                ResultadoOperacion.Exito(
+                    "Box $numeroBox habilitado correctamente."
+                )
+            }
+
+            else -> {
+
+                ResultadoOperacion.Error(
+                    "El Box $numeroBox no está fuera de servicio."
+                )
+            }
+        }
+    }
+
 }

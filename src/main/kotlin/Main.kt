@@ -20,7 +20,9 @@ fun main() = runBlocking {
         println("2. Registrar salida")
         println("3. Mostrar estado de boxes")
         println("4. Mostrar consultas")
-        println("5. Cerrar turno")
+        println("5. Poner box fuera de servicio")
+        println("6. Habilitar box")
+        println("7. Cerrar turno")
         println("==========================")
         print("Seleccione una opción: ")
 
@@ -281,10 +283,48 @@ fun main() = runBlocking {
                 petCare.mostrarConsultas()
             }
 
+            5 -> {
+
+                print("Número de box: ")
+                val numeroBox = readlnOrNull()?.toIntOrNull()
+
+                if (numeroBox == null) {
+                    println("Error: número de box inválido.")
+                    continue
+                }
+
+                print("Motivo: ")
+                val motivo = readln()
+
+                val resultado =
+                    petCare.ponerBoxFueraDeServicio(
+                        numeroBox,
+                        motivo
+                    )
+
+                mostrarResultado(resultado)
+            }
+
+            6 -> {
+
+                print("Número de box: ")
+                val numeroBox = readlnOrNull()?.toIntOrNull()
+
+                if (numeroBox == null) {
+                    println("Error: número de box inválido.")
+                    continue
+                }
+
+                val resultado =
+                    petCare.habilitarBox(numeroBox)
+
+                mostrarResultado(resultado)
+            }
+
             // =====================================================
             // CERRAR TURNO
             // =====================================================
-            5 -> {
+            7 -> {
 
                 petCare.generarReporteCierre()
 
@@ -301,7 +341,7 @@ fun main() = runBlocking {
 
                 println(
                     "Opción inválida. " +
-                            "Seleccione una opción del 1 al 5."
+                            "Seleccione una opción del 1 al 7."
                 )
             }
         }
