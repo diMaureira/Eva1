@@ -2,6 +2,8 @@ package org.example
 
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
 
 fun main() = runBlocking {
 
@@ -197,10 +199,18 @@ fun main() = runBlocking {
                     }
 
                     // Registramos la entrada mediante PetCare.
-                    val resultado =
-                        petCare.registrarEntrada(paciente)
+                    launch(Dispatchers.Default) {
 
-                    mostrarResultado(resultado)
+                        val resultado =
+                            petCare.registrarEntrada(paciente)
+
+                        mostrarResultado(resultado)
+                    }
+
+                    println(
+                        "La entrada se está procesando. " +
+                                "Puede continuar utilizando el sistema."
+                    )
 
                 } catch (e: Exception) {
 
@@ -250,13 +260,21 @@ fun main() = runBlocking {
                         continue
                     }
 
-                    val resultado =
-                        petCare.registrarSalida(
-                            codigo,
-                            tiempoMinutos
-                        )
+                    launch(Dispatchers.Default) {
 
-                    mostrarResultado(resultado)
+                        val resultado =
+                            petCare.registrarSalida(
+                                codigo,
+                                tiempoMinutos
+                            )
+
+                        mostrarResultado(resultado)
+                    }
+
+                    println(
+                        "La salida se está procesando. " +
+                                "Puede continuar utilizando el sistema."
+                    )
 
                 } catch (e: Exception) {
 
